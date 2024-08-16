@@ -1,14 +1,22 @@
+import * as fs from "node:fs/promises";
 import * as authServices from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import path from "node:path";
+
+const avatarsPath = path.resolve("public", "avatars");
 
 const { JWT_SECRET } = process.env;
 
 const signup = async (req, res) => {
-  const newUser = await authServices.signup(req.body);
+  const { path: oldPath, filename } = req.file;
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatar = path.join("public", "avatars", filename);
+  const newUser = await authServices.signup({ ...req.body, avatar });
 
   res.status(201).json({
     user: {
@@ -79,10 +87,24 @@ const setSubscription = async (req, res) => {
   });
 };
 
+const addAvatar = async (req, res) => {
+  // console.log(req.body);
+  // console.log(req.file);
+  // const { id } = req.user;
+  // const data = req.body;
+  // const { avatarURL } = await authServices.updateUser({ id }, data);
+  // res.json({
+  //   user: {
+  //     avatarURL,
+  //   },
+  // });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   logout: ctrlWrapper(logout),
   getCurrent: ctrlWrapper(getCurrent),
   setSubscription: ctrlWrapper(setSubscription),
+  addAvatar: ctrlWrapper(addAvatar),
 };
