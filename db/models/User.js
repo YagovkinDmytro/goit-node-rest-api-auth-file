@@ -42,6 +42,10 @@ const User = sequelize.define("user", {
     type: DataTypes.STRING,
     defaultValue: null,
   },
+  avatar: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
 });
 
 // await User.sync();
