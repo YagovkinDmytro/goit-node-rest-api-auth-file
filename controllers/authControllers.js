@@ -1,21 +1,21 @@
-import * as fs from "node:fs/promises";
 import * as authServices from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-import path from "node:path";
 
-const avatarsPath = path.resolve("public", "avatars");
+import { getGravatarUrl } from "../helpers/generate-gravatar.js";
+import { getAvatarPath } from "../helpers/getAvatarPath.js";
 
 const { JWT_SECRET } = process.env;
 
 const signup = async (req, res) => {
-  const { path: oldPath, filename } = req.file;
-  const newPath = path.join(avatarsPath, filename);
-  await fs.rename(oldPath, newPath);
-  const avatar = path.join("public", "avatars", filename);
+  const { email } = req.body;
+  const avatar = req.file
+    ? await getAvatarPath(req.file)
+    : getGravatarUrl(email);
+
   const newUser = await authServices.signup({ ...req.body, avatar });
 
   res.status(201).json({

@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import User from "../db/models/User.js";
-import * as fs from "node:fs/promises";
 
 export const findUser = (query) =>
   User.findOne({
@@ -29,8 +28,4 @@ export const signup = async (data) => {
     }
     throw error;
   }
-};
-
-export const saveFile = async () => {
-  await fs.rename();
 };
