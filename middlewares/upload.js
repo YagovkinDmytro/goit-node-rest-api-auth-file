@@ -1,7 +1,6 @@
 import multer from "multer";
 import path from "node:path";
 import HttpError from "../helpers/HttpError.js";
-import { findUser } from "../services/authServices.js";
 
 const destination = path.resolve("temp");
 
