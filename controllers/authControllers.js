@@ -6,17 +6,28 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 
 import { getGravatarUrl } from "../helpers/generate-gravatar.js";
-import { getAvatarPath } from "../helpers/getAvatarPath.js";
+import {
+  getAvatarPath,
+  removeAvatarTemp,
+  removeAvatarFile,
+} from "../helpers/getAvatarPath.js";
 
 const { JWT_SECRET } = process.env;
 
 const signup = async (req, res) => {
   const { email } = req.body;
-  const avatar = req.file
+
+  const user = await authServices.findUser({ email });
+  if (user) {
+    removeAvatarTemp(req.file);
+    throw HttpError(409, "Email in use");
+  }
+
+  const avatarURL = req.file
     ? await getAvatarPath(req.file)
     : getGravatarUrl(email);
 
-  const newUser = await authServices.signup({ ...req.body, avatar });
+  const newUser = await authServices.signup({ ...req.body, avatarURL });
 
   res.status(201).json({
     user: {
@@ -88,16 +99,21 @@ const setSubscription = async (req, res) => {
 };
 
 const addAvatar = async (req, res) => {
-  // console.log(req.body);
-  // console.log(req.file);
-  // const { id } = req.user;
-  // const data = req.body;
-  // const { avatarURL } = await authServices.updateUser({ id }, data);
-  // res.json({
-  //   user: {
-  //     avatarURL,
-  //   },
-  // });
+  const { id, avatarURL: oldPath } = req.user;
+  // removeAvatarFile(oldPath);
+
+  const avatarURL = await getAvatarPath(req.file);
+
+  const { avatarURL: newAvatarURL } = await authServices.updateUser(
+    { id },
+    { avatarURL }
+  );
+
+  res.json({
+    user: {
+      avatarURL: newAvatarURL,
+    },
+  });
 };
 
 export default {

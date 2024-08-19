@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "node:path";
-
 import HttpError from "../helpers/HttpError.js";
+import { findUser } from "../services/authServices.js";
 
 const destination = path.resolve("temp");
 
@@ -23,7 +23,7 @@ const limits = {
 const fileFilter = (req, file, cb) => {
   const extention = file.originalname.split(".").pop();
   if (extention === "exe") {
-    return callbackify(HttpError(400, ".exe not allow extention"));
+    return cb(HttpError(400, ".exe not allow extention"));
   }
   cb(null, true);
 };
@@ -32,6 +32,18 @@ const upload = multer({
   storage,
   limits,
   fileFilter,
-});
+}).single("avatarURL");
 
-export default upload;
+const uploadMiddleware = async (req, res, next) => {
+  upload(req, res, function (error) {
+    if (error?.code === "LIMIT_UNEXPECTED_FILE") {
+      return next(HttpError(400, "Add one file for uploading"));
+    }
+    if (error instanceof multer.MulterError) {
+      return next(HttpError(400, error.message));
+    }
+    next(error);
+  });
+};
+
+export default uploadMiddleware;
