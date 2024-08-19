@@ -6,7 +6,7 @@ import {
   authSignupSchema,
 } from "../schemas/authSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
-import upload from "../middlewares/upload.js";
+import uploadMiddleware from "../middlewares/upload.js";
 
 const signupMiddleware = validateBody(authSignupSchema);
 const setSubscriptionMidellware = validateBody(authSetSubscriptionSchema);
@@ -15,7 +15,7 @@ const authRouter = Router();
 
 authRouter.post(
   "/register",
-  upload.single("avatar"),
+  uploadMiddleware,
   signupMiddleware,
   authControllers.signup
 );
@@ -28,5 +28,12 @@ authRouter.patch(
   setSubscriptionMidellware,
   authControllers.setSubscription
 );
-authRouter.patch("/avatars", authenticate, authControllers.addAvatar);
+
+authRouter.patch(
+  "/avatars",
+  uploadMiddleware,
+  authenticate,
+  authControllers.addAvatar
+);
+
 export default authRouter;
