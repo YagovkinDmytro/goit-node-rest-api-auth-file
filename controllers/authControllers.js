@@ -100,7 +100,11 @@ const setSubscription = async (req, res) => {
 
 const addAvatar = async (req, res) => {
   const { id, avatarURL: oldPath } = req.user;
-  // removeAvatarFile(oldPath);
+  const avatarExtention = oldPath.split(".").pop();
+
+  if (avatarExtention === "jpg") {
+    removeAvatarFile(oldPath);
+  }
 
   const avatarURL = await getAvatarPath(req.file);
 
