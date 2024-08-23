@@ -19,7 +19,11 @@ const signup = async (req, res) => {
 
   const user = await authServices.findUser({ email });
   if (user) {
-    await removeAvatarTemp(req.file);
+    try {
+      await removeAvatarTemp(req.file);
+    } catch (error) {
+      console.log((error.message = "avatar was not accepted"));
+    }
     throw HttpError(409, "Email in use");
   }
 
