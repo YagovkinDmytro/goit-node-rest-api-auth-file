@@ -31,8 +31,8 @@ authRouter.patch(
 
 authRouter.patch(
   "/avatars",
-  uploadMiddleware,
   authenticate,
+  uploadMiddleware,
   authControllers.addAvatar
 );
 

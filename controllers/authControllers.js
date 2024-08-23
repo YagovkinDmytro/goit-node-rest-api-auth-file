@@ -19,7 +19,7 @@ const signup = async (req, res) => {
 
   const user = await authServices.findUser({ email });
   if (user) {
-    removeAvatarTemp(req.file);
+    await removeAvatarTemp(req.file);
     throw HttpError(409, "Email in use");
   }
 
@@ -103,7 +103,11 @@ const addAvatar = async (req, res) => {
   const avatarExtention = oldPath.split(".").pop();
 
   if (avatarExtention === "jpg") {
-    removeAvatarFile(oldPath);
+    try {
+      await removeAvatarFile(oldPath);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   const avatarURL = await getAvatarPath(req.file);
